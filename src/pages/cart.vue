@@ -1,12 +1,13 @@
 <template>
-  <div id="app">
-    <router-view></router-view>
+  <div class="hello">
+    this is cart.
   </div>
 </template>
 
 <script>
-
 export default {
-  name: 'App'
+  name: 'cart',
+  props: {
+  }
 }
 </script>

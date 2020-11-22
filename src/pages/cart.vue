@@ -53,38 +53,38 @@
               </ul>
             </div>
             <ul class="cart-item-list">
-              <li>
+              <li v-for="(item, index) in cartList" :key="index">
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
-                    <a href="javascipt:;" class="checkbox-btn item-check-btn checked">
+                    <a href="javascipt:;" class="checkbox-btn item-check-btn" :class="{'checked':item.checked}">
                       <svg class="icon icon-ok">
                         <use xlink:href="#icon-ok"></use>
                       </svg>
                     </a>
                   </div>
                   <div class="cart-item-pic">
-                    <img src="/imgs/1.jpg">
+                    <img :src="'imgs/' + item.productImage">
                   </div>
                   <div class="cart-item-title">
-                    <div class="item-name">小度人工智能音箱</div>
+                    <div class="item-name">{{item.productName}}</div>
                   </div>
                 </div>
                 <div class="cart-tab-2">
-                  <div class="item-price">{{price}}</div>
+                  <div class="item-price">{{item.productPrice}}</div>
                 </div>
                 <div class="cart-tab-3">
                   <div class="item-quantity">
                     <div class="select-self select-self-open">
                       <div class="select-self-area">
-                        <a class="input-sub" @click="subCount()">-</a>
-                        <span class="select-ipt">{{count}}</span>
-                        <a class="input-add" @click="addCount()">+</a>
+                        <a class="input-sub">-</a>
+                        <span class="select-ipt">{{item.productNum}}</span>
+                        <a class="input-add">+</a>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="cart-tab-4">
-                  <div class="item-price-total">￥{{rowPrice}}元</div>
+                  <div class="item-price-total">￥{{item.productPrice * item.productNum}}元</div>
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
@@ -114,7 +114,7 @@
             </div>
             <div class="cart-foot-r">
               <div class="item-total">
-                总价: <span class="total-price">￥{{totalPrice}}元</span>
+                总价: <span class="total-price">￥0元</span>
               </div>
               <div class="btn-wrap">
                 <a class="btn btn--red btn--dis">结算</a>
@@ -142,11 +142,12 @@ export default {
   data(){
     // 局部变量
     return {
-      count: 1,
-      price: 89,
-      rowPrice: '89.00',
-      totalPrice: '89.00'
+      cartList:[]
     }
+  },
+  mounted(){
+    // 组件渲染完成后初始化数据
+    this.init();
   },
   components:{
     NavHeader,
@@ -154,17 +155,11 @@ export default {
     Modal
   },
   methods:{
-    addCount: function(){
-      this.count ++;
-      this.rowPrice = (this.count * this.price).toFixed(2);
-      this.totalPrice = this.rowPrice;
-    },
-    subCount: function(){
-      if(this.count > 1){
-        this.count --;
-      }
-      this.rowPrice = (this.count * this.price).toFixed(2);
-      this.totalPrice = this.rowPrice;
+    init(){
+      this.axios.get("/mock/cart.json").then((response) => {
+        let res = response.data;
+        this.cartList = res.data;
+      })
     }
   }
 }

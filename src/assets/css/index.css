@@ -1095,6 +1095,10 @@
   overflow: hidden;
   display: inline-block;
   background: #f0f0f0;
+
+  -moz-user-select:none;
+  -webkit-user-select:none;
+  user-select:none;
 }
 .item-quantity .select-self-area{
   background:none;

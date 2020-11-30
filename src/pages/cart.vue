@@ -88,7 +88,7 @@
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
-                    <a href="javascript:;" class="item-edit-btn">
+                    <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item)">
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del"></use>
                       </svg>
@@ -126,6 +126,15 @@
     </div>
     <modal></modal>
     <nav-footer></nav-footer>
+    <modal :mdShow="modalConfirm" @close="closeModal">
+      <template v-slot:message> <!-- 3.0 新语法 -->
+        <p slot="message">你确认要删除此条数据吗?</p>
+      </template>
+      <template v-slot:btnGroup>
+        <a class="btn btn--m" href="javascript:;" @click="delCart">确认</a>
+        <a class="btn btn--m btn--red" href="javascript:;" @click="modalConfirm=false">关闭</a>
+      </template>
+    </modal>
   </div>
 </template>
 
@@ -142,6 +151,8 @@ export default {
   data(){
     // 局部变量
     return {
+      delItem:'', // 准备删除的对象
+      modalConfirm: false,
       cartList:[]
     }
   },
@@ -173,6 +184,25 @@ export default {
       } else{
         item.checked = !item.checked;
       }
+    },
+    // 删除数据确认弹窗
+    delCartConfirm(item){
+      this.delItem = item;
+      this.modalConfirm = true;
+    },
+    closeModal(){
+      this.modalConfirm = false;
+    },
+    // 删除购物车数据
+    delCart(){
+      let delItem = this.delItem;
+      this.cartList.forEach((item, index)=>{
+        if(delItem.productId === item.productId){
+          // splice(a,b,c)  a：索引位置，b：删除个数，c：添加元素
+          this.cartList.splice(index, 1);
+          this.modalConfirm = false;
+        }
+      })
     }
   },
   filters:{

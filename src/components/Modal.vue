@@ -1,27 +1,32 @@
 <template>
-  <div style="display: none;">
-    <div class="md-modal modal-msg md-modal-transition md-show">
+  <div>
+    <div class="md-modal modal-msg md-modal-transition" :class="{'md-show': mdShow}">
       <div class="md-modal-inner">
         <div class="md-top">
-          <button class="md-close">关闭</button>
+          <button class="md-close" @click="closeModal">关闭</button>
         </div>
         <div class="md-content">
           <div class="confirm-tips">
-            <p slot="message">你确认要删除此条数据吗?</p>
+            <slot name="message"></slot>
           </div>
           <div class="btn-wrap">
-            <a slot="btnGroup" class="btn btn--m" href="javascript:;">确认</a>
-            <a slot="btnGroup" class="btn btn--m btn--red" href="javascript:;">关闭</a>
+            <slot name="btnGroup"></slot>
           </div>
         </div>
       </div>
     </div>
-    <div class="md-overlay"></div>
+    <div class="md-overlay" v-if="mdShow" @click="closeModal"></div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'modal'
+  name: 'modal',
+  props: ['mdShow'],   // {'mdShow':Boolean}
+  methods:{
+    closeModal(){
+      this.$emit('close');// 自定义触发事件
+    }
+  }
 }
 </script>

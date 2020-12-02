@@ -56,7 +56,7 @@
               <li v-for="(item, index) in cartList" :key="index">
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
-                    <a href="javascipt:;" class="checkbox-btn item-check-btn" :class="{'checked':item.checked}" @click="editCart('checked', item)">
+                    <a href="javascript:;" class="checkbox-btn item-check-btn" :class="{'checked':item.checked}" @click="editCart('checked', item)">
                       <svg class="icon icon-ok">
                         <use xlink:href="#icon-ok"></use>
                       </svg>
@@ -103,8 +103,8 @@
           <div class="cart-foot-inner">
             <div class="cart-foot-l">
               <div class="item-all-check">
-                <a href="javascipt:;">
-                  <span class="checkbox-btn item-check-btn check">
+                <a href="javascript:;" @click="toggleCheckAll()">
+                  <span class="checkbox-btn item-check-btn" :class="{'checked':checkAllFlag}">
                     <svg class="icon icon-ok">
                       <use xlink:href="#icon-ok" /></svg>
                   </span>
@@ -114,10 +114,10 @@
             </div>
             <div class="cart-foot-r">
               <div class="item-total">
-                总价: <span class="total-price">￥0元</span>
+                总价: <span class="total-price">{{totalPrice|currency}}</span>
               </div>
               <div class="btn-wrap">
-                <a class="btn btn--red btn--dis">结算</a>
+                <a class="btn btn--red" :class="{'btn--dis':!checkedCount}" @click="checkOut">结算</a>
               </div>
             </div>
           </div>
@@ -159,6 +159,32 @@ export default {
   mounted(){
     // 组件渲染完成后初始化数据
     this.init();
+  },
+  // 计算属性
+  computed:{
+    checkAllFlag(){
+      // 数组中所有对象的checked都返回true，整体才返回true，否则返回false
+      return this.cartList.every((item)=>{
+        return item.checked;
+      })
+    },
+    // 判断购物车是否有选中的商品
+    checkedCount(){
+      // 数组中有一部分对象checked返回true，则结果返回true
+      return this.cartList.some((item)=>{
+        return item.checked;
+      })
+    },
+    // 购物车金额
+    totalPrice(){
+      let money = 0;
+      this.cartList.forEach((item)=>{
+        if(item.checked){
+          money += item.productNum * item.productPrice;
+        }
+      })
+      return money;
+    }
   },
   components:{
     NavHeader,
@@ -203,6 +229,20 @@ export default {
           this.modalConfirm = false;
         }
       })
+    },
+    // 全选和反选
+    toggleCheckAll(){
+      let flag = !this.checkAllFlag;
+      this.cartList.forEach((item)=>{
+        item.checked = flag;
+      })
+    },
+    checkOut(){
+      if(this.checkedCount){
+        this.$router.push({
+          path:'/address'
+        })
+      }
     }
   },
   filters:{

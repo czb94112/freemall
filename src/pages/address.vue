@@ -66,7 +66,7 @@
           <div class="addr-list-wrap">
             <div class="addr-list">
               <ul>
-                <li  class="check" v-for="(item, index) in addressFilter" :key="index">
+                <li  :class="{'check':checkedIndex == index}" v-for="(item, index) in addressFilter" :key="index" @click="check(index)">
                   <dl>
                     <dt>{{item.userName}}</dt>
                     <dd class="address">{{item.streetName}}</dd>
@@ -74,16 +74,16 @@
                   </dl>
                   <div class="addr-opration addr-del">
                     <!-- 删除地址 -->
-                    <a href="javascript:;" class="addr-del-btn">
+                    <a href="javascript:;" class="addr-del-btn" @click="delAddress(item.addressId)">
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del"></use>
                       </svg>
                     </a>
                   </div>
-                  <div class="addr-opration addr-set-default">
-                    <a href="javascript:;" class="addr-set-default-btn"><i>设为默认</i></a>
+                  <div class="addr-opration addr-set-default" v-if="!item.isDefault">
+                    <a href="javascript:;" class="addr-set-default-btn" @click="setDefault(item.addressId)"><i>设为默认</i></a>
                   </div>
-                  <div class="addr-opration addr-default">默认地址</div>
+                  <div class="addr-opration addr-default" v-if="item.isDefault">默认地址</div>
                 </li>
     
                 <li class="addr-new">
@@ -128,12 +128,21 @@
             </div>
           </div>
           <div class="next-btn-wrap">
-            <a class="btn btn--m btn--red" href="#">下一步</a>
+            <a class="btn btn--m btn--red" href="javascript:;" @click="next">下一步</a>
           </div>
         </div>
       </div>
     </div>
     <nav-footer></nav-footer>
+    <modal :mdShow="modalContent.modalConfirm" @close="modalContent.modalConfirm=false">
+      <template v-slot:message> <!-- 3.0 新语法 -->
+        <p slot="message">{{modalContent.message}}</p>
+      </template>
+      <template v-slot:btnGroup>
+        <a class="btn btn--m" href="javascript:;" v-if="modalContent.okBtnShow" @click="okClick">{{modalContent.okBtnName}}</a>
+        <a class="btn btn--m btn--red" href="javascript:;" v-if="modalContent.cancelBtnShow" @click="modalContent.modalConfirm=false">{{modalContent.cancelBtnName}}</a>
+      </template>
+    </modal>
   </div>
 </template>
 
@@ -141,11 +150,20 @@
 // 引入组件
 import NavHeader from './../components/Header'
 import NavFooter from './../components/Footer'
+import Modal from './../components/Modal'
 
 export default {
   name: 'addr',
   data(){
     return {
+      // 弹窗属性
+      modalContent:{
+        modalConfirm: false,
+        okBtnShow: true,
+        cancelBtnShow: true
+      },
+      flagAddressId:'',
+      checkedIndex: 0, // 选中索引
       limit: 3, // 默认显示个数
       addressList:[]
     }
@@ -162,7 +180,8 @@ export default {
   },
   components:{
     NavHeader,
-    NavFooter
+    NavFooter,
+    Modal
   },
   methods:{
     // 初始化加载数据
@@ -170,6 +189,12 @@ export default {
       this.axios.get('/mock/address.json').then((response)=>{
         let res = response.data;
         this.addressList = res.data;
+        this.addressList.forEach((item, index) => {
+          if(item.isDefault){
+            this.checkedIndex = index;
+            return;
+          }
+        });
       })
     },
     // 查看更多
@@ -179,6 +204,54 @@ export default {
       } else{
         this.limit = 3;
       }
+    },
+    // 选中地址
+    check(index){
+      this.checkedIndex = index;
+    },
+    // 删除地址
+    delAddress(addressId){
+      this.modalConfirm = true;
+      this.showModal({
+        message: '您确定要删除该地址？',
+        okFunction: ()=>{
+          this.addressList.map((item, index)=>{
+            if(addressId == item.addressId){
+              this.addressList.splice(index, 1);
+            }
+          })
+        }
+      })
+    },
+    setDefault(addressId){
+      this.addressList.map((item, index)=>{
+        if(addressId == item.addressId){
+          item.isDefault = true;
+        } else{
+          item.isDefault = false;
+        }
+      })
+    },
+    showModal(modal){
+      this.modalContent = {
+        modalConfirm: true,
+        message: modal.message || '确认关闭？',
+        okBtnShow: modal.okBtnShow == undefined ? true : modal.okBtnShow,
+        cancelBtnShow:  modal.cancelBtnShow == undefined ? true : modal.cancelBtnShow,
+        okBtnName: modal.okBtnName || '确认',
+        cancelBtnName: modal.cancelBtnName || '取消',
+        okFunction: modal.okFunction
+      }
+    },
+    okClick(){
+      this.modalContent.okFunction();
+      this.modalContent.modalConfirm = false;
+    },
+    next(){
+      this.showModal({
+        message: '更多内容尽情期待！',
+        okBtnShow: false
+      })
     }
   }
 }

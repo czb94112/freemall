@@ -124,7 +124,6 @@
         </div>
       </div>
     </div>
-    <modal></modal>
     <nav-footer></nav-footer>
     <modal :mdShow="modalConfirm" @close="closeModal">
       <template v-slot:message> <!-- 3.0 新语法 -->

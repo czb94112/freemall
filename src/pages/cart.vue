@@ -248,7 +248,7 @@ export default {
   filters:{
     currency: (value) => {
       if(!value){
-        return 0.00;
+        return '￥' + 0.00 + '元';
       }
 
       return '￥' + value.toFixed(2) + "元";
